@@ -1,0 +1,31 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+include:
+- path: ''
+  file_list:
+  - {path: app.h}
+component:
+- {id: emlib_adc}
+- {id: emlib_i2c}
+- {id: sl_system}
+- {id: brd4166a}
+- {id: EFR32MG12P332F1024GL125}
+- {id: emlib_letimer}
+- {id: device_init}
+- {id: dmadrv}
+- {id: app_assert}
+- {id: emlib_timer}
+package: platform
+define:
+- {name: DEBUG_EFM}
+description: |
+  This example project shows an empty configuration that can be used as a starting point to add components and functionality.
+label: POV
+source:
+- {path: app.c}
+- {path: main.c}
+project_name: POV
+category: Example|Platform
+toolchain_settings: []
+ui_hints: {}
+quality: production
+
