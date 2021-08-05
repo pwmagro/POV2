@@ -5,13 +5,12 @@
 #define	BMP280_HG
 
 /* System include statements */
-#include <math.h>
 
 /* Silicon Labs include statements */
-
+#include <stdbool.h>
+#include <stdint.h>
 
 /* The developer's include statements */
-#include "i2c.h"
 
 //***********************************************************************************
 // defined files
@@ -64,7 +63,7 @@
 // function prototypes
 //***********************************************************************************
 bool bmp280_i2c_test(uint32_t cb);
-void bmp280_open(uint32_t temp_callback, uint32_t pressure_callback, uint32_t bmp280_open_callback);
+void bmp280_open(uint32_t temp_callback, uint32_t pressure_callback);
 void bmp280_read_temp(void);
 void bmp280_read_pressure(void);
 

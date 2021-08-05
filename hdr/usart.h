@@ -5,9 +5,6 @@
 // Include files
 //***********************************************************************************
 #include "em_usart.h"
-#include "em_assert.h"
-#include "em_cmu.h"
-#include "em_dma.h"
 
 #include "sleep_routines.h"
 

@@ -1,7 +1,7 @@
 /**
  * @file cmu.c
  * @author Peter Magro
- * @date June 1st, 2021
+ * @date June 21st, 2021
  * @brief cmu.c enables oscillators and configures clock tree.
  *
  */
@@ -10,7 +10,10 @@
 // Include files
 //***********************************************************************************
 #include "cmu.h"
-#include <stdio.h>
+
+#include "em_assert.h"
+
+#include "brd_config.h"
 
 //***********************************************************************************
 // defined files

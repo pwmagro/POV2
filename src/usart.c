@@ -1,7 +1,7 @@
 /**
  * @file usart.c
  * @author Peter Magro
- * @date June 17th, 2021
+ * @date June 22nd, 2021
  * @brief Enables the USART for SPI operation.
  */
 
@@ -9,6 +9,10 @@
 // Include files
 //***********************************************************************************
 #include "usart.h"
+
+#include "em_assert.h"
+#include "em_cmu.h"
+
 
 //***********************************************************************************
 // defined files

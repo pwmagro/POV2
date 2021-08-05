@@ -1,7 +1,7 @@
 /**
  * @file i2c.c
  * @author Peter Magro
- * @date April 24th, 2021
+ * @date July 22nd, 2021
  * @brief i2c.c contains all functions for the I2C peripheral.
  * @note This file replaces traditional "master/slave" terminology with "controller/receiver", however, the Silicon Labs
  * 			platform still uses the older terminology, so it is still present in some of the code.
@@ -11,6 +11,16 @@
 // Include files
 //***********************************************************************************
 #include "i2c.h"
+
+/* System include statements */
+#include <stdio.h>
+
+/* Silicon Labs include statements */
+
+/* The developer's include statements */
+#include "sleep_routines.h"
+#include "scheduler.h"
+#include "HW_Delay.h"
 
 //***********************************************************************************
 // defined files

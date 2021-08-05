@@ -1,7 +1,7 @@
 /**
  * @file scheduler.c
  * @author Peter Magro
- * @date February 20th, 2021
+ * @date June 21st, 2021
  * @brief Contains all scheduler functions.
  */
 
@@ -9,9 +9,8 @@
  * includes
  */
 #include "scheduler.h"
-#include "em_assert.h"
+
 #include "em_core.h"
-#include "em_emu.h"
 
 /*
  * defines

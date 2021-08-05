@@ -1,7 +1,7 @@
 /**
  * @file SI7021.c
  * @author Peter Magro
- * @date April 24th, 2021
+ * @date July 20th, 2021
  * @brief SI7021.c contains all functions for interfacing with the SI7021.
  *
  */
@@ -10,6 +10,7 @@
 // Include files
 //***********************************************************************************
 #include "SI7021.h"
+#include "HW_delay.h"
 
 //***********************************************************************************
 // defined files

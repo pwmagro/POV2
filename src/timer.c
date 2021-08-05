@@ -1,7 +1,7 @@
 /**
  * @file timer.c
  * @author Peter Magro
- * @date June 18th, 2021
+ * @date June 25th, 2021
  * @brief Enables and configures the Timer module.
  */
 
@@ -9,6 +9,9 @@
 // Include files
 //***********************************************************************************
 #include "timer.h"
+
+#include "em_cmu.h"
+#include "sleep_routines.h"
 
 //***********************************************************************************
 // defined files

@@ -9,8 +9,6 @@
 
 /* Silicon Labs include statements */
 #include "em_timer.h"
-#include "em_cmu.h"
-#include "sleep_routines.h"
 
 //***********************************************************************************
 // defined files

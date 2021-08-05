@@ -13,12 +13,9 @@
 //***********************************************************************************
 
 /* System include statements */
+#include <stdint.h>
 
 /* Silicon Labs include statements */
-#include "em_emu.h"
-//#include "em_int.h"
-#include "em_core.h"
-#include "em_assert.h"
 
 /* The developer's include statements */
 

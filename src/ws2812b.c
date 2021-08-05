@@ -1,7 +1,7 @@
 /**
  * @file ws2812b.c
  * @author Peter Magro
- * @date June 10th, 2021
+ * @date June 22nd, 2021
  * @brief Implements the WS2812B RGB LED protocol.
  */
 
@@ -9,6 +9,13 @@
 // Include files
 //***********************************************************************************
 #include "ws2812b.h"
+
+#include <stdlib.h>
+
+#include "dmadrv.h"
+
+#include "usart.h"
+#include "HW_delay.h"
 
 //***********************************************************************************
 // defined files

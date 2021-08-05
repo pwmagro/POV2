@@ -8,8 +8,6 @@
 
 
 /* Silicon Labs include statements */
-#include "em_cmu.h"
-#include "em_gpio.h"
 
 /* The developer's include statements */
 

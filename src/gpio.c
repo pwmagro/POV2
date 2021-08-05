@@ -1,7 +1,7 @@
 /**
  * @file gpio.c
  * @author Peter Magro
- * @date June 17th, 2021
+ * @date July 19th, 2021
  * @brief gpio.c enables and configures pin outs.
  *
  */
@@ -11,6 +11,10 @@
 //***********************************************************************************
 #include "gpio.h"
 
+#include "em_cmu.h"
+#include "em_assert.h"
+
+#include "brd_config.h"
 
 //***********************************************************************************
 // defined files

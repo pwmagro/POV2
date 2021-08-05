@@ -4,17 +4,11 @@
 #ifndef	I2C_HG
 #define	I2C_HG
 
-/* System include statements */
-#include <stdio.h>
-
-/* Silicon Labs include statements */
+#include <stdint.h>
+#include <stdbool.h>
 #include "em_i2c.h"
 
-/* The developer's include statements */
 #include "brd_config.h"
-#include "sleep_routines.h"
-#include "scheduler.h"
-#include "HW_Delay.h"
 
 //***********************************************************************************
 // defined files

@@ -9,10 +9,8 @@
 
 /* Silicon Labs include statements */
 #include "em_cmu.h"
-#include "em_assert.h"
 
 /* The developer's include statements */
-#include "brd_config.h"
 
 
 //***********************************************************************************

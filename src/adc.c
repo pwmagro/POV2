@@ -1,7 +1,7 @@
 /**
  * @file adc.c
  * @author Peter Magro
- * @date June 22st, 2021
+ * @date August 4th, 2021
  * @brief Includes functions related to the ADC.
  */
 
@@ -9,6 +9,8 @@
 // Include files
 //***********************************************************************************
 #include "adc.h"
+#include "em_cmu.h"
+#include "brd_config.h"
 
 //***********************************************************************************
 // defined files
@@ -55,7 +57,7 @@ void adc_open(ADC_TypeDef *adc, ADC_OPEN_STRUCT_TypeDef *open_struct) {
 	sleep_block_mode(ADC_EM);
 	CMU_ClockEnable(cmuClock_ADC0, true);
 
-	// Programming settings and enabling ADC
+	// Opening the ADC
 	init.ovsRateSel = open_struct->ovsRateSel;
 	init.warmUpMode = open_struct->warmUpMode;
 	init.timebase = ADC_TimebaseCalc(MCU_HFRCO_FREQ);
@@ -64,6 +66,7 @@ void adc_open(ADC_TypeDef *adc, ADC_OPEN_STRUCT_TypeDef *open_struct) {
 	init.em2ClockConfig = open_struct->em2ClockConfig;
 	ADC_Init(adc, &init);
 
+	// Programming the ADC's single channel mode
 	ADC_InitSingle_TypeDef init_single = ADC_INITSINGLE_DEFAULT;
 	init_single.reference = adcRef5V;
 	init_single.posSel = open_struct->channel;
@@ -74,7 +77,7 @@ void adc_open(ADC_TypeDef *adc, ADC_OPEN_STRUCT_TypeDef *open_struct) {
 	uint32_t ien_flags = ADC_IEN_SINGLE;
 	adc->IEN = ien_flags;
 
-	// Finishing off
+	// Cleanup
 	NVIC_EnableIRQ(ADC0_IRQn);
 	sleep_unblock_mode(ADC_EM);
 }
@@ -115,7 +118,6 @@ void ADC0_IRQHandler(void) {
 
 	if (int_flag & ADC_IF_SINGLE) {
 		last_read = ADC0->SINGLEDATA;
+		sleep_unblock_mode(ADC_EM);
 	}
-
-	sleep_unblock_mode(ADC_EM);
 }

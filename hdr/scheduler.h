@@ -8,11 +8,8 @@
 #include <stdint.h>
 
 /* Silicon Labs include statements */
-#include "em_assert.h"
-//#include "em_int.h"
 
 /* The developer's include statements */
-#include "sleep_routines.h"
 
 //***********************************************************************************
 // defined files

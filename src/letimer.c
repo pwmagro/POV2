@@ -1,7 +1,7 @@
 /**
  * @file letimer.c
  * @author Peter Magro
- * @date June 16th, 2021
+ * @date July 14th, 2021
  * @brief Contains all the LETIMER driver functions
  */
 
@@ -9,13 +9,18 @@
 //***********************************************************************************
 // Include files
 //***********************************************************************************
+#include "letimer.h"
 
 //** Standard Libraries
 
 //** Silicon Lab include files
+#include "em_cmu.h"
+#include "em_assert.h"
 
 //** User/developer include files
-#include "letimer.h"
+#include "scheduler.h"
+#include "sleep_routines.h"
+#include "HW_delay.h"
 
 //***********************************************************************************
 // defined files

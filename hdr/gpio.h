@@ -5,15 +5,12 @@
 #define	GPIO_HG
 
 /* System include statements */
-
+#include <stdint.h>
 
 /* Silicon Labs include statements */
-#include "em_cmu.h"
 #include "em_gpio.h"
-#include "em_assert.h"
 
 /* The developer's include statements */
-#include "brd_config.h"
 
 //***********************************************************************************
 // defined files

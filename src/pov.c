@@ -1,7 +1,7 @@
 /**
  * @file pov.c
  * @author Peter Magro
- * @date June 21st, 2021
+ * @date July 23rd, 2021
  * @brief Implements the POV logic and display modes.
  */
 
@@ -10,6 +10,16 @@
 //***********************************************************************************
 #include "pov.h"
 
+#include <stdio.h>
+#include <string.h>
+
+#include "bmp280.h"
+#include "timer.h"
+#include "font.h"
+#include "battery.h"
+#include "letimer.h"
+#include "math.h"
+#include "si7021.h"
 //***********************************************************************************
 // defined files
 //***********************************************************************************
@@ -36,14 +46,14 @@ static float humidity;
 //***********************************************************************************
 // Private functions
 //***********************************************************************************
+void pov_core();
 void pov_hello_world(POV_Display_TypeDef *display);
 void pov_temp_humidity_start();
 void pov_credits(POV_Display_TypeDef *display);
 void pov_battery_level(POV_Display_TypeDef *display);
-void pov_filler(POV_Display_TypeDef *display);
 void pov_bmp280_start(void);
+void pov_filler(POV_Display_TypeDef *display);
 void hsv_to_grb(uint8_t H, uint8_t S, uint8_t V, GRB_TypeDef *ret);
-void pov_core();
 
 /***************************************************************************//**
  * @brief
@@ -126,7 +136,8 @@ void pov_hello_world(POV_Display_TypeDef *display) {
 
 /***************************************************************************//**
  * @brief
- *		Begins the SI7021 humidity read sequence.
+ *		Begins the SI7021 humidity read sequence. Will result in calls to
+ *		pov_update_humidity() and pov_update_si7021_temp().
  *
  ******************************************************************************/
 void pov_temp_humidity_start() {
@@ -135,69 +146,7 @@ void pov_temp_humidity_start() {
 
 /***************************************************************************//**
  * @brief
- *		Updates the humidity local static variable.
- ******************************************************************************/
-void pov_update_humidity() {
-	humidity = si7021_calculate_humidity();
-}
-
-/***************************************************************************//**
- * @brief
- *		Updates the humidity local static variable and updates display.
- *
- ******************************************************************************/
-void pov_update_si7021_temp() {
-	/*
-	 * Create temperature  and humidity strings & pad leftover characters
-	 * with spaces
-	 */
-	POV_Display_TypeDef display;
-	char top[16];
-	float temp = si7021_calculate_temperature();
-	uint32_t len = sprintf(top, "Humidity: %.2f%%\n", humidity);
-
-	for (uint32_t i = len; i < DISPLAY_NUM_CHARS; i++) {
-		top[i] = ' ';
-	}
-
-	char bottom[16];
-	len = sprintf(bottom, "Temp: %.1fF", temp);
-
-	for (uint32_t i = len; i < DISPLAY_NUM_CHARS; i++) {
-		bottom[i] = ' ';
-	}
-
-
-	/* Write strings to display variable */
-	strcpy(display.top_string, top);
-	strcpy(display.bottom_string, bottom);
-
-
-	/* Write colors to display variable */
-	GRB_TypeDef top_text_color = { 2, 2, 4 };
-	GRB_TypeDef top_num_color = { 1, 1, 6};
-	GRB_TypeDef bottom_text_color = { 2, 4, 2 };
-	GRB_TypeDef bottom_num_color = { 1, 6, 1 };
-
-	for (uint32_t i = 0; i < 9; i++) {
-		display.top_colors[i] = top_text_color;
-	}
-	for (uint32_t i = 9; i < 16; i++) {
-		display.top_colors[i] = top_num_color;
-	}
-	for (uint32_t i = 0; i < 5; i++) {
-		display.bottom_colors[i] = bottom_text_color;
-	}
-	for (uint32_t i = 5; i < 16; i++) {
-		display.bottom_colors[i] = bottom_num_color;
-	}
-
-	pov_update_display(display);
-}
-
-/***************************************************************************//**
- * @brief
- * 		Displays "Keith Graham" and "Peter Magro"
+ * 		Displays "Keith Graham" and "Peter Magro" in white and gold.
  *
  * @param[in] display
  * 		The display variable to write to.
@@ -205,7 +154,7 @@ void pov_update_si7021_temp() {
  ******************************************************************************/
 void pov_credits(POV_Display_TypeDef *display) {
 	GRB_TypeDef top_color = { 6, 6, 6 };
-	GRB_TypeDef bottom_color = { 6, 8, 2 };
+	GRB_TypeDef bottom_color = { 10, 8, 0 };
 
 	display->top_string = "  Keith Graham  ";
 	display->bottom_string = "   Peter Magro  ";
@@ -245,30 +194,13 @@ void pov_battery_level(POV_Display_TypeDef *display) {
 	}
 }
 
+/***************************************************************************//**
+ * @brief
+ *		Begins the BMP280 read sequence.
+ *
+ ******************************************************************************/
 void pov_bmp280_start(void) {
 	bmp280_read_temp();
-}
-
-void pov_update_bmp280(void) {
-	POV_Display_TypeDef display;
-
-	char top[17];
-	float pressure = bmp280_get_last_pressure_read() / 100;
-	uint32_t len = sprintf(top, "Pressure: %.0fhPa", pressure);
-
-	for (uint32_t i = len; i < DISPLAY_NUM_CHARS; i++) {
-		top[i] = ' ';
-	}
-
-	char bottom[17];
-	float altitude = bmp280_get_altitude();
-	len = sprintf(bottom, "Altitude: %.1fm", altitude);
-
-	for (uint32_t i = len; i < DISPLAY_NUM_CHARS; i++) {
-		bottom[i] = ' ';
-	}
-
-	pov_update_display(display);
 }
 
 /***************************************************************************//**
@@ -396,7 +328,7 @@ void pov_open(void) {
 	timer_open(POV_TICK_TIMER, &timer_struct);
 	ws2812b_open();
 	si7021_i2c_open(ENVSENSE_I2C_PERIPHERAL, true);
-	bmp280_open(BMP280_TEMP_CB, BMP280_PRESSURE_CB, BMP280_OPEN_CB);
+	bmp280_open(BMP280_TEMP_CB, BMP280_PRESSURE_CB);
 }
 
 /***************************************************************************//**
@@ -447,15 +379,6 @@ void pov_handle_measure(uint32_t count) {
 		timer_start(POV_TICK_TIMER, ticks_per_deg * DEAD_ZONE_WIDTH, UINT32_MAX);
 
 	}
-}
-
-/***************************************************************************//**
- * @brief
- *		Returns the current position of the display.
- *
- ******************************************************************************/
-pov_position pov_get_position(void) {
-	return current_position;
 }
 
 /***************************************************************************//**
@@ -529,7 +452,6 @@ void pov_tick(void) {
  * 		character.
  *
  ******************************************************************************/
-
 void pov_update_display(POV_Display_TypeDef display) {
 
 	// If the battery is low, display a low battery message regardless of what's
@@ -579,6 +501,95 @@ void pov_update_display(POV_Display_TypeDef display) {
 			}
 		}
 	}
+}
+
+/***************************************************************************//**
+ * @brief
+ *		Updates the humidity local static variable.
+ ******************************************************************************/
+void pov_update_humidity(void) {
+	humidity = si7021_calculate_humidity();
+}
+
+/***************************************************************************//**
+ * @brief
+ *		Updates the humidity local static variable and updates display.
+ *
+ ******************************************************************************/
+void pov_update_si7021_temp(void) {
+	/*
+	 * Create temperature  and humidity strings & pad leftover characters
+	 * with spaces
+	 */
+	POV_Display_TypeDef display;
+	char top[16];
+	float temp = si7021_calculate_temperature();
+	uint32_t len = sprintf(top, "Humidity: %.2f%%\n", humidity);
+
+	for (uint32_t i = len; i < DISPLAY_NUM_CHARS; i++) {
+		top[i] = ' ';
+	}
+
+	char bottom[16];
+	len = sprintf(bottom, "Temp: %.1fF", temp);
+
+	for (uint32_t i = len; i < DISPLAY_NUM_CHARS; i++) {
+		bottom[i] = ' ';
+	}
+
+
+	/* Write strings to display variable */
+	strcpy(display.top_string, top);
+	strcpy(display.bottom_string, bottom);
+
+
+	/* Write colors to display variable */
+	GRB_TypeDef top_text_color = { 2, 2, 4 };
+	GRB_TypeDef top_num_color = { 1, 1, 6};
+	GRB_TypeDef bottom_text_color = { 2, 4, 2 };
+	GRB_TypeDef bottom_num_color = { 1, 6, 1 };
+
+	for (uint32_t i = 0; i < 9; i++) {
+		display.top_colors[i] = top_text_color;
+	}
+	for (uint32_t i = 9; i < 16; i++) {
+		display.top_colors[i] = top_num_color;
+	}
+	for (uint32_t i = 0; i < 5; i++) {
+		display.bottom_colors[i] = bottom_text_color;
+	}
+	for (uint32_t i = 5; i < 16; i++) {
+		display.bottom_colors[i] = bottom_num_color;
+	}
+
+	pov_update_display(display);
+}
+
+/***************************************************************************//**
+ * @brief
+ *		Shows the current pressure and altitude estimate on the display.
+ *
+ ******************************************************************************/
+void pov_update_bmp280(void) {
+	POV_Display_TypeDef display;
+
+	char top[17];
+	float pressure = bmp280_get_last_pressure_read() / 100;
+	uint32_t len = sprintf(top, "Pressure: %.0fhPa", pressure);
+
+	for (uint32_t i = len; i < DISPLAY_NUM_CHARS; i++) {
+		top[i] = ' ';
+	}
+
+	char bottom[17];
+	float altitude = bmp280_get_altitude();
+	len = sprintf(bottom, "Altitude: %.1fm", altitude);
+
+	for (uint32_t i = len; i < DISPLAY_NUM_CHARS; i++) {
+		bottom[i] = ' ';
+	}
+
+	pov_update_display(display);
 }
 
 /***************************************************************************//**
@@ -654,47 +665,96 @@ void pov_show_menu(void) {
  * 		Determines the direction to scroll through the modes.
  *
  ******************************************************************************/
-void pov_change_mode(bool right) {
+void pov_change_mode(bool direction) {
 
 	// Scroll to the next mode depending on the previous.
 	switch(displaymode) {
 	case HelloWorld:
-		displaymode = right ? Filler12 : TempHumidity;
+		displaymode = direction ? Filler12 : TempHumidity;
 		break;
 	case TempHumidity:
-		displaymode = right ? HelloWorld : Credits;
+		displaymode = direction ? HelloWorld : Credits;
 		break;
 	case Credits:
-		displaymode = right ? TempHumidity : BatteryLevel;
+		displaymode = direction ? TempHumidity : BatteryLevel;
 		break;
 	case BatteryLevel:
-		displaymode = right ? Credits : PressureAltitude;
+		displaymode = direction ? Credits : PressureAltitude;
 		break;
 	case PressureAltitude:
-		displaymode = right ? BatteryLevel : Filler6;
+		displaymode = direction ? BatteryLevel : Filler6;
 		break;
 	case Filler6:
-		displaymode = right ? PressureAltitude : Filler7;
+		displaymode = direction ? PressureAltitude : Filler7;
 		break;
 	case Filler7:
-		displaymode = right ? Filler6 : Filler8;
+		displaymode = direction ? Filler6 : Filler8;
 		break;
 	case Filler8:
-		displaymode = right ? Filler7 : Filler9;
+		displaymode = direction ? Filler7 : Filler9;
 		break;
 	case Filler9:
-		displaymode = right ? Filler8 : Filler10;
+		displaymode = direction ? Filler8 : Filler10;
 		break;
 	case Filler10:
-		displaymode = right ? Filler9 : Filler11;
+		displaymode = direction ? Filler9 : Filler11;
 		break;
 	case Filler11:
-		displaymode = right ? Filler10 : Filler12;
+		displaymode = direction ? Filler10 : Filler12;
 		break;
 	case Filler12:
-		displaymode = right ? Filler11 : HelloWorld;
+		displaymode = direction ? Filler11 : HelloWorld;
 		break;
 	}
 
 	pov_show_menu();
+}
+
+/***************************************************************************//**
+ * @brief
+ *		Interrupt handler for TIMER1.
+ *
+ * @details
+ *		If the timer has reached the end of a one-shot, will start or stop the
+ *		display cycle as appropriate. If the timer has reached the compare value,
+ *		the display will be advanced.
+ *
+ ******************************************************************************/
+void WTIMER1_IRQHandler(void) {
+	uint32_t int_flag = WTIMER1->IF & WTIMER1->IEN;
+	WTIMER1->IFC = int_flag;
+
+	// Interrupts from overflow
+	if (int_flag & TIMER_IF_OF) {
+		if (current_position == dead_one) {
+			pov_start_display();
+		}
+		else if (current_position == display) {
+			pov_end_display();
+		}
+	}
+
+	// Interrupts from CC0
+	if (int_flag & TIMER_IF_CC0) {
+		pov_tick();
+	}
+}
+
+/***************************************************************************//**
+ * @brief
+ *		Interrupt handler for TIMER0.
+ *
+ * @details
+ *		If TIMER0 (the timer used for calibration) overflows, it is assumed that
+ *		the display has stopped spinning, and the "menu" mode is activated.
+ *
+ ******************************************************************************/
+void WTIMER0_IRQHandler(void) {
+	uint32_t int_flag = WTIMER0->IF & WTIMER0->IEN;
+	WTIMER0->IFC = int_flag;
+
+	if (int_flag & TIMER_IF_OF) {
+		pov_show_menu();
+		timer_measure_restart(POV_MEASURE_TIMER);
+	}
 }

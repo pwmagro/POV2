@@ -1,7 +1,7 @@
 /****************************************************************//**
  * @file sleep_routines.c
  * @author Peter Magro
- * @date February 20th, 2021
+ * @date May 28th, 2021
  * @brief Contains all the sleep mode handling functions.
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -36,7 +36,6 @@
 
 //** Silicon Lab include files
 #include "em_emu.h"
-//#include "em_int.h"
 #include "em_assert.h"
 #include "em_core.h"
 

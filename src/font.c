@@ -1,7 +1,7 @@
 /**
  * @file font.c
  * @author Peter Magro
- * @date June 17th, 2021
+ * @date July 12th, 2021
  * @brief Establishes a text format for POV display.
  */
 
@@ -9,6 +9,10 @@
 // Include files
 //***********************************************************************************
 #include "font.h"
+
+#include <stdbool.h>
+
+#include "em_assert.h"
 
 //***********************************************************************************
 // defined files

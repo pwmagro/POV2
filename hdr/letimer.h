@@ -5,18 +5,13 @@
 #define	LETIMER_HG
 
 /* System include statements */
-
+#include <stdint.h>
+#include <stdbool.h>
 
 /* Silicon Labs include statements */
 #include "em_letimer.h"
-#include "em_gpio.h"
-#include "em_cmu.h"
-#include "em_assert.h"
 
 /* The developer's include statements */
-#include "scheduler.h"
-#include "sleep_routines.h"
-#include "HW_delay.h"
 
 //***********************************************************************************
 // defined files
